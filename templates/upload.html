@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Plant Leaf Image</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-image: url('https://png.pngtree.com/thumb_back/fw800/background/20231030/pngtree-top-view-of-natural-leaves-a-green-lush-leaf-background-with-image_13751260.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+        }
+        input[type="submit"] {
+            background-color: green;
+            color: white;
+            border: 0;
+            padding: 10px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #4CBB17;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight:bold;
+            color: rgb(9, 8, 8);  /* Changed to white */
+        }
+        .image-preview {
+            margin-top: 20px;
+            display: none;
+        }
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-family: Bradley Hand, cursive; color: white; text-shadow: 1px 1px 2px black, 0 0 25px green, 0 0 5px rgb(61, 151, 87);">Upload Plant Leaf Image</h1>
+        <form method="post" action="/upload" enctype="multipart/form-data" id="upload-form">
+            <input type="file" name="file" accept=".jpg,.jpeg,.png" required onchange="previewImage(event)">
+            <input type="submit" value="Upload">
+        </form>
+        <div class="result" id="result"></div>
+        <div class="image-preview" id="image-preview">
+            <h2>Image Preview:</h2>
+            <img id="preview-img" src="" alt="Uploaded Image">
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const previewImg = document.getElementById('preview-img');
+        const imagePreview = document.getElementById('image-preview');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            if (result.predicted_class !== undefined) {
+                resultDiv.innerHTML = `File uploaded successfully! Predicted Class: ${result.predicted_class}`;
+            } else {
+                resultDiv.innerHTML = `Error: ${result.message}`;
+            }
+        };
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
